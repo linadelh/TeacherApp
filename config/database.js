@@ -3,7 +3,7 @@
 const { Sequelize } = require('sequelize');
 
 // Création de la connexion avec la base de données
-const sequelize = new Sequelize('gestion_voeux', 'root', 'yasmine1234', {
+const sequelize = new Sequelize('gestion_voeux', 'root', '0101', {
   host: 'localhost',
   dialect: 'mysql', // Utilisation du dialecte MySQL
 });
