@@ -23,7 +23,7 @@ app.get('/', (req, res) => {
 });
 
 // ✅ Lancement serveur + BDD
-const PORT = process.env.PORT || 5001;
+const PORT = process.env.PORT || 5000;
 sequelize.sync({ alter: true }).then(() => {
   console.log('✅ Base de données synchronisée !');
   app.listen(PORT, () => {
@@ -32,3 +32,4 @@ sequelize.sync({ alter: true }).then(() => {
 }).catch((err) => {
   console.error('❌ Erreur de synchronisation avec la base :', err);
 });
+
