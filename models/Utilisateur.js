@@ -48,7 +48,19 @@ const Utilisateur = sequelize.define('Utilisateur', {
     allowNull: false,
     defaultValue: 'enseignant',
   },
-  
+  statut: {
+    type: DataTypes.ENUM('titulaire', 'vacataire', 'doctorant', 'autre_faculte'),
+    allowNull: true,
+  },
+  bureau: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
+  heures_supplementaires: {
+    type: DataTypes.BOOLEAN,
+    allowNull: true,
+    defaultValue: false,
+  },
   date_inscription: {
     type: DataTypes.DATE,
     allowNull: true,

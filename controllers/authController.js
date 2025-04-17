@@ -9,26 +9,28 @@ const register = async (req, res) => {
     prenom,
     email,
     password,
-    role,
     grade,
-    matricule,
     faculte,
-    departement
+    departement,
+    role // envoyé en dur depuis le frontend (ex : "enseignant")
   } = req.body;
 
-  // Validation simple
+  // Validation des champs obligatoires
   if (!nom || !prenom || !email || !password || !role) {
     return res.status(400).json({ message: "Les champs obligatoires sont manquants." });
   }
 
   try {
+    // Vérifier si l'utilisateur existe déjà
     const existingUser = await Utilisateur.findOne({ where: { email } });
     if (existingUser) {
       return res.status(400).json({ message: "Cet email est déjà utilisé." });
     }
 
+    // Hasher le mot de passe
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    // Créer le nouvel utilisateur
     const user = await Utilisateur.create({
       nom,
       prenom,
@@ -36,7 +38,6 @@ const register = async (req, res) => {
       password: hashedPassword,
       role,
       grade,
-      matricule,
       faculte,
       departement
     });
@@ -80,7 +81,6 @@ const login = async (req, res) => {
         email: user.email,
         role: user.role,
         grade: user.grade,
-        matricule: user.matricule,
         faculte: user.faculte,
         departement: user.departement
       }

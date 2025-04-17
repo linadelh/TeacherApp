@@ -2,7 +2,6 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 const Enseignant = require('./Enseignant');
-const Module = require('./Module');
 
 const Voeu = sequelize.define('Voeu', {
   id: {
@@ -16,16 +15,6 @@ const Voeu = sequelize.define('Voeu', {
     references: {
       model: Enseignant,
       key: 'utilisateur_id'
-    },
-    onDelete: 'CASCADE',
-    onUpdate: 'CASCADE'
-  },
-  module_id: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-    references: {
-      model: Module,
-      key: 'id'
     },
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE'
