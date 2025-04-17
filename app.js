@@ -1,34 +1,14 @@
-require("dotenv").config();
 
 const express = require('express');
-const sequelize = require('./config/database');
 const app = express();
-app.use(express.json());
+const port = 3009; // Port local (change-le si besoin)
 
-
-
-// ✅ Importation des vrais routeurs maintenant
-const enseignantRoutes = require('./routes/enseignantRoutes');
-const authRoutes = require('./routes/authRoutes'); // 🔁 MAINTENANT c’est un vrai router !
-const protectedRoutes = require('./routes/protectedRoutes');
-
-// ✅ Utilisation
-app.use('/api/auth', authRoutes);
-app.use('/api/enseignants', enseignantRoutes);
-app.use('/api/protected', protectedRoutes);
-
-// ✅ Route de test
+// Route simple pour tester
 app.get('/', (req, res) => {
-  res.send('Bienvenue dans le projet de gestion des fiches de vœux');
+  res.send('✅ Le serveur fonctionne ! Modifie-moi et sauvegarde pour voir Nodemon relancer le serveur.');
 });
 
-// ✅ Lancement serveur + BDD
-const PORT = process.env.PORT || 5001;
-sequelize.sync({ alter: true }).then(() => {
-  console.log('✅ Base de données synchronisée !');
-  app.listen(PORT, () => {
-    console.log(`✅ Serveur démarré sur http://localhost:${PORT}`);
-  });
-}).catch((err) => {
-  console.error('❌ Erreur de synchronisation avec la base :', err);
+// Démarrer le serveur
+app.listen(port, () => {
+  console.log(`Serveur démarré sur http://localhost:${port}`);
 });

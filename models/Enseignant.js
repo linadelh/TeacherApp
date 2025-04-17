@@ -36,7 +36,6 @@ const Enseignant = sequelize.define('Enseignant', {
   timestamps: false, // Désactiver createdAt et updatedAt
 });
 
-// Association avec Utilisateur
-Enseignant.belongsTo(Utilisateur, { foreignKey: 'utilisateur_id' });
+
 
 module.exports = Enseignant;
