@@ -1,0 +1,322 @@
+
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fiche de Vœux - Année Universitaire 2024/2025</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container" id="voeu-form">
+        <div class="header">
+            <h1>FICHE DE VŒUX - ANNÉE UNIVERSITAIRE 2024/2025</h1>
+            <h2>Département d'Informatique</h2>
+        </div>
+        
+        <div class="info-section">
+            <div class="info-header">Informations de l'enseignant</div>
+            <div class="info-content">
+                <div class="teacher-info">
+                    <div>
+                        <label>Nom Prénom:</label>
+                        <span></span>
+                    </div>
+                    <div>
+                        <label>Grade:</label>
+                        <span></span>
+                    </div>
+                    <div>
+                        <label>Email:</label>
+                        <span></span>
+                    </div>
+                    <div>
+                        <label>Matricule:</label>
+                        <span></span>
+                    </div>
+                    <div>
+                        <label>Faculté:</label>
+                        <span></span>
+                    </div>
+                    <div>
+                        <label>Département:</label>
+                        <span></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section-label">📝 Choix des Modules</div>
+        
+        <div class="info-section">
+            <table id="choix-table">
+                <tr>
+                    <th width="6%"></th>
+                    <th width="12%">Semestre</th>
+                    <th width="12%">Niveau</th>
+                    <th width="14%">Spécialité</th>
+                    <th width="20%">Module</th>
+                    <th width="12%">Cours (3h)</th>
+                    <th width="12%">TD (2h)</th>
+                    <th width="12%">TP (1h30)</th>
+                </tr>
+                
+                <!-- Partie S1 -->
+                <tr class="semester-header">
+                    <td colspan="8">Semestre 1 </td>
+                </tr>
+                <tr data-choice="s1-1">
+                    <td class="header-row">Choix 1</td>
+                    <td class="dropdown">
+                        <span class="fixed-semester">S1</span>
+                        <input type="hidden" class="semestre-select" value="S1">
+                    </td>
+                    <td class="dropdown">
+                        <select class="niveau-select">  
+                            <option value="">Sélectionner</option>
+                        </select>
+                    </td>
+                    <td class="dropdown">
+                        <select class="specialite-select">  
+                            <option value="">Sélectionner</option>
+                        </select>
+                    </td>
+                    <td class="dropdown">
+                        <select class="module-select" name="module">  
+                            <option value="">Sélectionner un module</option>
+                        </select>
+                    </td>
+                    <td class="checkbox"><input type="checkbox" class="hour-checkbox" data-hours="3"></td>
+                    <td class="checkbox"><input type="checkbox" class="hour-checkbox" data-hours="2"></td>
+                    <td class="checkbox"><input type="checkbox" class="hour-checkbox" data-hours="1.5"></td>
+                </tr>
+                <tr data-choice="s1-2">
+                    <td class="header-row">Choix 2</td>
+                    <td class="dropdown">
+                        <span class="fixed-semester">S1</span>
+                        <input type="hidden" class="semestre-select" value="S1">
+                    </td>
+                    <td class="dropdown">
+                        <select class="niveau-select">  
+                            <option value="">Sélectionner</option>
+                        </select>
+                    </td>
+                    <td class="dropdown">
+                        <select class="specialite-select">  
+                            <option value="">Sélectionner</option>
+                        </select>
+                    </td>
+                    <td class="dropdown">
+                        <select class="module-select" name="module">  
+                            <option value="">Sélectionner un module</option>
+                        </select>
+                    </td>
+                    <td class="checkbox"><input type="checkbox" class="hour-checkbox" data-hours="3"></td>
+                    <td class="checkbox"><input type="checkbox" class="hour-checkbox" data-hours="2"></td>
+                    <td class="checkbox"><input type="checkbox" class="hour-checkbox" data-hours="1.5"></td>
+                </tr>
+                <tr data-choice="s1-3">
+                    <td class="header-row">Choix 3</td>
+                    <td class="dropdown">
+                        <span class="fixed-semester">S1</span>
+                        <input type="hidden" class="semestre-select" value="S1">
+                    </td>
+                    <td class="dropdown">
+                        <select class="niveau-select">  
+                            <option value="">Sélectionner</option>
+                        </select>
+                    </td>
+                    <td class="dropdown">
+                        <select class="specialite-select">  
+                            <option value="">Sélectionner</option>
+                        </select>
+                    </td>
+                    <td class="dropdown">
+                        <select class="module-select" name="module">  
+                            <option value="">Sélectionner un module</option>
+                        </select>
+                    </td>
+                    <td class="checkbox"><input type="checkbox" class="hour-checkbox" data-hours="3"></td>
+                    <td class="checkbox"><input type="checkbox" class="hour-checkbox" data-hours="2"></td>
+                    <td class="checkbox"><input type="checkbox" class="hour-checkbox" data-hours="1.5"></td>
+                </tr>
+                
+                <!-- Partie S2 -->
+                <tr class="semester-header">
+                    <td colspan="8">Semestre 2 </td>
+                </tr>
+                <tr data-choice="s2-1">
+                    <td class="header-row">Choix 1</td>
+                    <td class="dropdown">
+                        <span class="fixed-semester">S2</span>
+                        <input type="hidden" class="semestre-select" value="S2">
+                    </td>
+                    <td class="dropdown">
+                        <select class="niveau-select">  
+                            <option value="">Sélectionner</option>
+                        </select>
+                    </td>
+                    <td class="dropdown">
+                        <select class="specialite-select">  
+                            <option value="">Sélectionner</option>
+                        </select>
+                    </td>
+                    <td class="dropdown">
+                        <select class="module-select" name="module">  
+                            <option value="">Sélectionner un module</option>
+                        </select>
+                    </td>
+                    <td class="checkbox"><input type="checkbox" class="hour-checkbox" data-hours="3"></td>
+                    <td class="checkbox"><input type="checkbox" class="hour-checkbox" data-hours="2"></td>
+                    <td class="checkbox"><input type="checkbox" class="hour-checkbox" data-hours="1.5"></td>
+                </tr>
+                <tr data-choice="s2-2">
+                    <td class="header-row">Choix 2</td>
+                    <td class="dropdown">
+                        <span class="fixed-semester">S2</span>
+                        <input type="hidden" class="semestre-select" value="S2">
+                    </td>
+                    <td class="dropdown">
+                        <select class="niveau-select">  
+                            <option value="">Sélectionner</option>
+                        </select>
+                    </td>
+                    <td class="dropdown">
+                        <select class="specialite-select">  
+                            <option value="">Sélectionner</option>
+                        </select>
+                    </td>
+                    <td class="dropdown">
+                        <select class="module-select" name="module">  
+                            <option value="">Sélectionner un module</option>
+                        </select>
+                    </td>
+                    <td class="checkbox"><input type="checkbox" class="hour-checkbox" data-hours="3"></td>
+                    <td class="checkbox"><input type="checkbox" class="hour-checkbox" data-hours="2"></td>
+                    <td class="checkbox"><input type="checkbox" class="hour-checkbox" data-hours="1.5"></td>
+                </tr>
+                <tr data-choice="s2-3">
+                    <td class="header-row">Choix 3</td>
+                    <td class="dropdown">
+                        <span class="fixed-semester">S2</span>
+                        <input type="hidden" class="semestre-select" value="S2">
+                    </td>
+                    <td class="dropdown">
+                        <select class="niveau-select">  
+                            <option value="">Sélectionner</option>
+                        </select>
+                    </td>
+                    <td class="dropdown">
+                        <select class="specialite-select">  
+                            <option value="">Sélectionner</option>
+                        </select>
+                    </td>
+                    <td class="dropdown">
+                        <select class="module-select" name="module">  
+                            <option value="">Sélectionner un module</option>
+                        </select>
+                    </td>
+                    <td class="checkbox"><input type="checkbox" class="hour-checkbox" data-hours="3"></td>
+                    <td class="checkbox"><input type="checkbox" class="hour-checkbox" data-hours="2"></td>
+                    <td class="checkbox"><input type="checkbox" class="hour-checkbox" data-hours="1.5"></td>
+                </tr>
+            </table>
+        </div>
+        <div class="section-label">Encadrement</div>
+        
+        <div class="info-section">
+            <table>
+                <tr>
+                    <th width="50%">PFE Master</th>
+                    <th width="50%">PFE Licence</th>
+                </tr>
+                <tr>
+                    <td class="dropdown">
+                        <select id="pfe-master">  
+                            <option value="">Sélectionner</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                        </select>
+                    </td>
+                    <td class="dropdown">
+                        <select id="pfe-licence">  
+                            <option value="">Sélectionner</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                        </select>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        
+        <div class="section-label">Heures supplémentaires</div>
+        
+        <div class="info-section">
+            <div class="info-content extra-hours">
+                <label>Nombre d'heures supplémentaires demandées (facultatif):</label>
+                <input type="number" id="heures-sup" min="0" max="20" placeholder="0">
+                <span class="optional-label">Maximum 20 heures autorisées</span>
+            </div>
+        </div>
+        
+        <div class="section-label">Message complémentaire</div>
+        
+        <div class="info-section">
+            <div class="info-content">
+                <div class="message-section">
+                    <textarea id="commentaire" placeholder="Écrivez ici tout message ou information complémentaire que vous souhaitez transmettre..."></textarea>
+                    <span class="optional-label">Ce champ est facultatif</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="button-container">
+            <button class="last-year-button" id="preserveButton">PRÉSERVER MES CHOIX DE L’ANNÉE DERNIÈRE</button>
+            <div id="modalWindow" class="modal">
+                <div class="modal-content">
+                  <span class="close-button" id="closeModal">&times;</span>
+                  <p> Aucun choix de l’année dernière n’a été retrouvé dans le système.<br>
+                  Veuillez effectuer vos vœux manuellement.</p>
+                </div>
+              </div>
+              <script>
+                const preserveBtn = document.getElementById("preserveButton");
+                const modal = document.getElementById("modalWindow");
+                const closeBtn = document.getElementById("closeModal");
+            
+                preserveBtn.addEventListener("click", () => {
+                  // Simulation : si pas de données de l’an dernier, afficher modale
+                  modal.style.display = "block";
+                });
+            
+                closeBtn.addEventListener("click", () => {
+                  modal.style.display = "none";
+                });
+            
+                // Fermer en cliquant à l’extérieur
+                window.addEventListener("click", (event) => {
+                  if (event.target === modal) {
+                    modal.style.display = "none";
+                  }
+                });
+              </script>
+            
+            <button class="submit-button">SOUMETTRE MA FICHE</button>
+        </div>
+        
+        <div class="form-footer">
+            Fiche des vœux à soumettre avant le 30 aout 2025
+        </div>
+    </div>
+
+    <!-- Importation du fichier JavaScript externe -->
+    <script src="script.js"></script>
+</body>
+</html>

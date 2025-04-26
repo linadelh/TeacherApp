@@ -19,8 +19,8 @@ const Voeu = sequelize.define('Voeu', {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE'
   },
-  semestre: {
-    type: DataTypes.ENUM('S1', 'S2'),
+  annee: {  
+    type: DataTypes.INTEGER, // Utiliser un champ INT pour l'année
     allowNull: false
   },
   status: {

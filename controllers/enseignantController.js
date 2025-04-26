@@ -10,6 +10,7 @@ const getAllEnseignants = async (req, res) => {
   }
 };
 
+
 // Fonction pour ajouter un enseignant
 const addEnseignant = async (req, res) => {
   const { nom, email } = req.body;

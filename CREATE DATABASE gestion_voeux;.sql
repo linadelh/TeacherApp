@@ -37,7 +37,7 @@ CREATE TABLE modules (
 CREATE TABLE voeux (
     id INT PRIMARY KEY AUTO_INCREMENT,
     utilisateur_id INT NOT NULL,
-    semestre ENUM('S1', 'S2') NOT NULL,
+    annee INT NOT NULL ,
     status ENUM('en attente', 'accepté', 'en négociation', 'refusé') DEFAULT 'en attente',
 	nb_pfe_licence INT DEFAULT 1 CHECK (nb_pfe_licence >= 1),  -- PFE Licence (min 1)
     nb_pfe_master INT DEFAULT 1 CHECK (nb_pfe_master >= 1),    -- PFE Master (min 1)

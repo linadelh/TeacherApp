@@ -142,35 +142,63 @@
     });
 
     function handleAuth(isLogin) {
-      const API_URL = "/api/auth";
-      const url = isLogin ? `${API_URL}/login` : `${API_URL}/register`;
-
-      const data = isLogin ? {
-        email: document.getElementById("login-email").value,
-        password: document.getElementById("login-password").value
-      } : {
-        prenom: document.getElementById("signup-prenom").value,
-        nom: document.getElementById("signup-nom").value,
-        email: document.getElementById("signup-email").value,
-        password: document.getElementById("signup-password").value,
-        grade: document.getElementById("signup-grade").value,
-        faculte: document.getElementById("signup-faculte").value,
-        departement: document.getElementById("signup-departement").value,
-        role: "enseignant"
-      };
-
-      fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      })
-        .then(res => res.json())
-        .then(result => {
-          alert(result.message || (isLogin ? "Connexion réussie !" : "Inscription réussie !"));
-        })
-        .catch(err => alert("Erreur : " + err.message));
+  const API_URL = "/api/auth";
+  const url = isLogin ? `${API_URL}/login` : `${API_URL}/register`;
+  const data = isLogin ? {
+    email: document.getElementById("login-email").value,
+    password: document.getElementById("login-password").value
+  } : {
+    prenom: document.getElementById("signup-prenom").value,
+    nom: document.getElementById("signup-nom").value,
+    email: document.getElementById("signup-email").value,
+    password: document.getElementById("signup-password").value,
+    grade: document.getElementById("signup-grade").value,
+    faculte: document.getElementById("signup-faculte").value,
+    departement: document.getElementById("signup-departement").value,
+    role: "enseignant"
+  };
+  if (!isLogin && data.departement.trim() === "") {
+  data.departement = null; // ✅ null accepté par la base de données
     }
+  fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  })
+    .then(async (response) => {
+      const responseData = await response.json().catch(() => null);
 
+      if (response.ok) {
+        // ✅ Succès
+        if (isLogin) {
+          if (responseData?.token) {
+            localStorage.setItem("token", responseData.token);
+            window.location.href = "/espace.html"; // Redirection après connexion
+          } else {
+            alert("❌ Connexion échouée : Token manquant.");
+          }
+        } else {
+          alert("✅ Inscription réussie. Vous pouvez maintenant vous connecter.");
+          document.querySelector(".switcher-login")?.click(); // Bascule vers le formulaire de connexion
+        }
+      } else {
+        // ❌ Erreur HTTP avec message du serveur
+        const errorMsg = responseData?.message || "Une erreur est survenue.";
+        alert(
+          isLogin
+            ? `❌ Échec de la connexion : ${errorMsg}`
+            : `❌ Erreur lors de l'inscription : ${errorMsg}`
+        );
+      }
+    })
+    .catch((error) => {
+      // ❌ Erreur réseau ou serveur inattendue
+      console.error("🚨 Erreur réseau ou serveur :", error);
+      alert(
+        "💥 Une erreur est survenue. Vérifiez votre connexion ou réessayez plus tard."
+      );
+    });
+    }
     // Gérer l'affichage du département selon la faculté
     const faculteSelect = document.getElementById("signup-faculte");
     const departementSelect = document.getElementById("signup-departement");

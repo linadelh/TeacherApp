@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Espace Enseignant - USTHB</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+        
+        body {
+            background-color: #f0f2f5;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        /* En-tête - Inchangé comme demandé */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 2px solid #1a4ba5;
+            margin-bottom: 30px;
+        }
+        
+        .logo {
+            width: 120px;
+            height: auto;
+        }
+        
+        .header-title {
+            text-align: center;
+            flex-grow: 1;
+        }
+        
+        .header-title h1 {
+            color: #1a4ba5;
+            font-size: 28px;
+            margin-bottom: 5px;
+        }
+        
+        .header-title h2 {
+            color: #555;
+            font-size: 18px;
+        }
+        
+        /* Nouvelle conception pour le reste */
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+        }
+        
+        .welcome-card {
+            grid-column: 1 / -1;
+            position: relative;
+            height: 250px;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        }
+        
+        .welcome-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('info.png');
+            background-size: cover;
+            /* Modification ici: position de l'image descendue */
+            background-position: center 10%;
+            filter: brightness(0.8);
+            z-index: -2;
+            transition: transform 0.5s ease;
+        }
+        
+        .welcome-card:hover::before {
+            transform: scale(1.05);
+        }
+        
+        .welcome-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(26, 75, 165, 0.85) 0%, rgba(0, 0, 0, 0.7) 100%);
+            z-index: -1;
+        }
+        
+        .welcome-content {
+            position: relative;
+            z-index: 1;
+            padding: 30px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .welcome-content h2 {
+            color: white;
+            font-size: 32px;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .welcome-content p {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 18px;
+            max-width: 70%;
+            line-height: 1.6;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+        }
+        
+        .user-info {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background-color: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            padding: 10px 20px;
+            border-radius: 50px;
+        }
+        
+        .user-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: #1a4ba5;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        .user-details h3 {
+            color: white;
+            font-size: 16px;
+            margin-bottom: 3px;
+        }
+        
+        .user-details p {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 14px;
+        }
+        
+        .services-card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .services-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+        }
+        
+        .services-card h2 {
+            color: #1a4ba5;
+            font-size: 24px;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f2f5;
+            position: relative;
+        }
+        
+        .services-card h2::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 80px;
+            height: 2px;
+            background-color: #1a4ba5;
+        }
+        
+        .service-button {
+            background-color: white;
+            color: #1a4ba5;
+            border: 2px solid #1a4ba5;
+            border-radius: 10px;
+            padding: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-top: auto;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+        
+        .service-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background-color: #1a4ba5;
+            transition: all 0.4s ease;
+            z-index: -1;
+        }
+        
+        .service-button:hover {
+            color: white;
+        }
+        
+        .service-button:hover::before {
+            left: 0;
+        }
+        
+        .service-button i {
+            font-size: 24px;
+            transition: transform 0.3s ease;
+        }
+        
+        .service-button:hover i {
+            transform: scale(1.2);
+        }
+        
+        .info-card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            height: 100%;
+        }
+        
+        .info-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+        }
+        
+        .info-card h2 {
+            color: #1a4ba5;
+            font-size: 24px;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f2f5;
+            position: relative;
+        }
+        
+        .info-card h2::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 80px;
+            height: 2px;
+            background-color: #1a4ba5;
+        }
+        
+        .info-card::before {
+            content: '';
+            position: absolute;
+            top: -50px;
+            right: -50px;
+            width: 150px;
+            height: 150px;
+            background-color: rgba(26, 75, 165, 0.1);
+            border-radius: 50%;
+            z-index: 0;
+        }
+        
+        .info-content {
+            position: relative;
+            z-index: 1;
+        }
+        
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #f0f2f5;
+        }
+        
+        .info-item:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+        
+        .info-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            background-color: rgba(26, 75, 165, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: #1a4ba5;
+        }
+        
+        .info-text h3 {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        
+        .info-text p {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .date-display {
+            text-align: right;
+            margin-bottom: 20px;
+            font-style: italic;
+            color: #666;
+            font-size: 14px;
+        }
+        
+        footer {
+            margin-top: 40px;
+            text-align: center;
+            padding: 20px;
+            background-color: #1a4ba5;
+            color: white;
+            border-radius: 15px;
+        }
+        
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+            
+            .welcome-content p {
+                max-width: 100%;
+            }
+            
+            .user-info {
+                position: static;
+                margin-bottom: 20px;
+                width: fit-content;
+            }
+            
+            .welcome-content {
+                padding: 20px;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- En-tête - Inchangé comme demandé -->
+        <header>
+            <img src="usthb.png" alt="Logo USTHB" class="logo">
+            <div class="header-title">
+                <h1>Espace Enseignant</h1>
+                <h2>Université des Sciences et de la Technologie Houari Boumediene</h2>
+            </div>
+        </header>
+        
+        <div class="date-display" id="currentDate"></div>
+        
+        <div class="dashboard">
+            <!-- Carte de bienvenue avec l'image de la faculté en arrière-plan -->
+            <div class="welcome-card">
+                <div class="welcome-content">
+                    <div class="user-info">
+                        <div class="user-avatar">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="user-details">
+                            <h3>Bienvenue, Professeur</h3>
+                            <p>Faculté d'Informatique</p>
+                        </div>
+                    </div>
+                    <h2>Bienvenue dans votre espace</h2>
+                    <p>Accédez à vos services et gérez vos activités pédagogiques au sein de l'université.</p>
+                </div>
+            </div>
+            
+            <!-- Carte des services -->
+            <div class="services-card">
+                <h2>Mes Services</h2>
+                <button id="wishFormBtn" class="service-button">
+                    <i class="fas fa-clipboard-list"></i>
+                    Ma fiche de vœux
+                </button>
+            </div>
+            
+            <!-- Carte d'informations -->
+            <div class="info-card">
+                <h2>Informations</h2>
+                <div class="info-content">
+                    <div class="info-item">
+                        <div class="info-icon">
+                            <i class="fas fa-calendar-alt"></i>
+                        </div>
+                        <div class="info-text">
+                            <h3>Année Universitaire</h3>
+                            <p>2024-2025</p>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="info-text">
+                            <h3>Faculté</h3>
+                            <p>Informatique</p>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-icon">
+                            <i class="fas fa-bullhorn"></i>
+                        </div>
+                        <div class="info-text">
+                            <h3>Annonce</h3>
+                            <p>Soumission des fiches de vœux avant le 30 juin 2025</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>&copy; 2025 USTHB - Faculté d'Informatique. Tous droits réservés.</p>
+        </footer>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Bouton pour accéder à la fiche de vœux
+            const wishFormBtn = document.getElementById('wishFormBtn');
+            
+            wishFormBtn.addEventListener('click', function() {
+                window.location.href = '/voeu.html';
+            });
+            
+            // Afficher la date actuelle
+            const today = new Date();
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            const dateString = today.toLocaleDateString('fr-FR', options);
+            
+            const dateElement = document.getElementById('currentDate');
+            dateElement.textContent = dateString;
+            
+            // Animation au chargement de la page
+            const dashboard = document.querySelector('.dashboard');
+            dashboard.style.opacity = '0';
+            dashboard.style.transform = 'translateY(20px)';
+            dashboard.style.transition = 'opacity 0.8s ease, transform 0.8s ease';
+            
+            setTimeout(() => {
+                dashboard.style.opacity = '1';
+                dashboard.style.transform = 'translateY(0)';
+            }, 100);
+            
+            // Animation des cartes au survol
+            const cards = document.querySelectorAll('.services-card, .info-card');
+            cards.forEach((card, index) => {
+                card.style.transitionDelay = `${index * 0.1}s`;
+            });
+        });
+    </script>
+</body>
+</html>

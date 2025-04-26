@@ -22,7 +22,9 @@ const Utilisateur = sequelize.define('Utilisateur', {
   email: {
     type: DataTypes.STRING,
     allowNull: false,
-    unique: true,
+    unique: {
+      name: 'unique_email_idx' // Add this explicit index name
+    },
     validate: {
       isEmail: true,
     },

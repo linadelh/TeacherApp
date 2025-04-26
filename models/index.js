@@ -43,7 +43,7 @@ function setupAssociations() {
     otherKey: 'voeu_id'
   });
 }
-
+setupAssociations();
 // Exporte les modèles + associations
 module.exports = {
   sequelize,
