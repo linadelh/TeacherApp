@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Portail d’Authentification USTHB</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet" />
+</head>
+
+<body>
+  <div class="logo-float">
+    <img src="images/logo.png" alt="USTHB Logo" class="logo" />
+  </div>
+
+  <section class="forms-section">
+    <h1 class="section-title">Portail d’Authentification USTHB</h1>
+
+    <div class="forms">
+      <!-- Connexion -->
+      <div class="form-wrapper is-active">
+        <button type="button" class="switcher switcher-login">
+          Connexion
+          <span class="underline"></span>
+        </button>
+        <form class="form form-login" onsubmit="event.preventDefault(); handleAuth(true);">
+          <fieldset>
+            <legend>Connexion</legend>
+            <div class="input-block">
+              <label for="login-email">E-mail</label>
+              <div class="input-wrapper">
+                <i class="fas fa-envelope"></i>
+                <input id="login-email" type="email" required placeholder="Entrez votre e-mail" class="input-field" />
+              </div>
+            </div>
+            <div class="input-block">
+              <label for="login-password">Mot de passe</label>
+              <div class="input-wrapper">
+                <i class="fas fa-lock"></i>
+                <input id="login-password" type="password" required placeholder="Entrez votre mot de passe" class="input-field" />
+              </div>
+            </div>
+          </fieldset>
+          <button type="submit" class="btn-login">Se connecter</button>
+        </form>
+      </div>
+
+      <!-- Inscription -->
+      <div class="form-wrapper">
+        <button type="button" class="switcher switcher-signup">
+          Inscription
+          <span class="underline"></span>
+        </button>
+        <form class="form form-signup" onsubmit="event.preventDefault(); handleAuth(false);">
+          <fieldset>
+            <legend>Inscription</legend>
+
+            <div class="input-block">
+              <label for="signup-prenom">Prénom</label>
+              <div class="input-wrapper">
+                <i class="fas fa-user"></i>
+                <input id="signup-prenom" type="text" required placeholder="Entrez votre prénom" class="input-field" />
+              </div>
+            </div>
+
+            <div class="input-block">
+              <label for="signup-nom">Nom</label>
+              <div class="input-wrapper">
+                <i class="fas fa-user"></i>
+                <input id="signup-nom" type="text" required placeholder="Entrez votre nom" class="input-field" />
+              </div>
+            </div>
+
+            <div class="input-block">
+              <label for="signup-email">E-mail</label>
+              <div class="input-wrapper">
+                <i class="fas fa-envelope"></i>
+                <input id="signup-email" type="email" required placeholder="Entrez votre e-mail" class="input-field" />
+              </div>
+            </div>
+
+            <div class="input-block">
+              <label for="signup-password">Mot de passe</label>
+              <div class="input-wrapper">
+                <i class="fas fa-lock"></i>
+                <input id="signup-password" type="password" required placeholder="Entrez votre mot de passe" class="input-field" />
+              </div>
+            </div>
+
+            <div class="input-block">
+              <label for="signup-grade">Grade</label>
+              <select id="signup-grade" required class="dropdown">
+                <option value="">-- Sélectionner votre grade --</option>
+                <option value="MAB">MAB</option>
+                <option value="MAA">MAA</option>
+                <option value="MCB">MCB</option>
+                <option value="MCA">MCA</option>
+                <option value="PROF">PROF</option>
+              </select>
+            </div>
+
+            <div class="input-block">
+              <label for="signup-faculte">Faculté</label>
+              <select id="signup-faculte" required class="dropdown">
+                <option value="">-- Sélectionner votre faculté --</option>
+                <option value="mathematique">Mathématiques</option>
+                <option value="informatique">Informatique</option>
+                <option value="genie civil">Génie civil</option>
+                <option value="physique">Physique</option>
+                <option value="electronique">Électronique</option>
+              </select>
+            </div>
+
+            <div class="input-block" id="departement-container" style="display: none;">
+              <label for="signup-departement">Département</label>
+              <select id="signup-departement" class="dropdown">
+                <option value="">-- Sélectionner votre département --</option>
+                <option value="SIQ">SIQ</option>
+                <option value="AI">AI</option>
+                <option value="SD">SD</option>
+              </select>
+            </div>
+
+            <div class="input-block terms">
+              <input type="checkbox" id="signup-conditions" required class="checkbox" />
+              <label for="signup-conditions" class="terms-label">J'accepte les conditions d'utilisation</label>
+            </div>
+          </fieldset>
+          <button type="submit" class="btn-signup">S'inscrire</button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    const switchers = [...document.querySelectorAll('.switcher')];
+    switchers.forEach(item => {
+      item.addEventListener('click', function () {
+        switchers.forEach(el => el.parentElement.classList.remove('is-active'));
+        this.parentElement.classList.add('is-active');
+      });
+    });
+
+    function handleAuth(isLogin) {
+  const API_URL = "/api/auth";
+  const url = isLogin ? `${API_URL}/login` : `${API_URL}/register`;
+  const data = isLogin ? {
+    email: document.getElementById("login-email").value,
+    password: document.getElementById("login-password").value
+  } : {
+    prenom: document.getElementById("signup-prenom").value,
+    nom: document.getElementById("signup-nom").value,
+    email: document.getElementById("signup-email").value,
+    password: document.getElementById("signup-password").value,
+    grade: document.getElementById("signup-grade").value,
+    faculte: document.getElementById("signup-faculte").value,
+    departement: document.getElementById("signup-departement").value,
+    role: "enseignant"
+  };
+  if (!isLogin && data.departement.trim() === "") {
+  data.departement = null; // ✅ null accepté par la base de données
+    }
+  fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  })
+    .then(async (response) => {
+      const responseData = await response.json().catch(() => null);
+
+      if (response.ok) {
+        // ✅ Succès
+        if (isLogin) {
+          if (responseData?.token) {
+            localStorage.setItem("token", responseData.token);
+            window.location.href = "/espace.html"; // Redirection après connexion
+          } else {
+            alert("❌ Connexion échouée : Token manquant.");
+          }
+        } else {
+          alert("✅ Inscription réussie. Vous pouvez maintenant vous connecter.");
+          document.querySelector(".switcher-login")?.click(); // Bascule vers le formulaire de connexion
+        }
+      } else {
+        // ❌ Erreur HTTP avec message du serveur
+        const errorMsg = responseData?.message || "Une erreur est survenue.";
+        alert(
+          isLogin
+            ? `❌ Échec de la connexion : ${errorMsg}`
+            : `❌ Erreur lors de l'inscription : ${errorMsg}`
+        );
+      }
+    })
+    .catch((error) => {
+      // ❌ Erreur réseau ou serveur inattendue
+      console.error("🚨 Erreur réseau ou serveur :", error);
+      alert(
+        "💥 Une erreur est survenue. Vérifiez votre connexion ou réessayez plus tard."
+      );
+    });
+    }
+    // Gérer l'affichage du département selon la faculté
+    const faculteSelect = document.getElementById("signup-faculte");
+    const departementSelect = document.getElementById("signup-departement");
+    const departementContainer = document.getElementById("departement-container");
+
+    faculteSelect.addEventListener("change", () => {
+      const isInfo = faculteSelect.value.toLowerCase() === "informatique";
+      departementContainer.style.display = isInfo ? "block" : "none";
+      departementSelect.required = isInfo;
+      if (!isInfo) departementSelect.value = "";
+    });
+  </script>
+</body>
+</html>
