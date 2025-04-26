@@ -1,0 +1,25 @@
+# Fichiers système
+.DS_Store
+Thumbs.db
+
+# Fichiers d'environnement
+.env
+*.env.*
+
+# Dossiers de dépendances
+node_modules/
+vendor/
+bin/
+obj/
+
+# Fichiers de compilation
+*.exe
+*.dll
+*.pdb
+
+# Fichiers d'IDE
+.idea/
+.vscode/
+*.suo
+*.user
+
