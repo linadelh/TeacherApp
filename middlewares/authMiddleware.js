@@ -11,12 +11,16 @@ const authMiddleware = (req, res, next) => {
 
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        req.user = decoded;
-        enseignantId: decoded.enseignantId,
-        next();
+        req.user = {
+            ...decoded, // tu recopies les infos utiles
+            enseignantId: decoded.enseignantId // facultatif si déjà inclus
+        };
+        next(); // ✅ très important !
     } catch (error) {
         return res.status(401).json({ message: "Token invalide." });
     }
 };
 
-module.exports = authMiddleware;
+module.exports = authMiddleware; // ✅ tu exportes la fonction elle-même
+
+

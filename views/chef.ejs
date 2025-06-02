@@ -1,0 +1,336 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Chef de Département</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="chef.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
+    <script src="https://cdn.sheetjs.com/xlsx-0.19.3/package/dist/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="header">
+            <h1>Système de Vœux - Tableau de Bord</h1>
+            <div class="user-info">
+                   <div id="notifications-container">
+      <button id="notif-bell" style="background:none;border:none;cursor:pointer;position:relative;">
+  <i class="ri-notification-2-fill" style="font-size:28px;color:#fff;"></i>
+  <span id="notif-count" class="notif-badge"></span>
+</button>
+      <div id="notif-list" style="display:none; position:absolute; right:0; background:#fff; border:1px solid #ccc; width:300px; max-height:300px; overflow:auto; z-index:100;">
+        <!-- Notifications ici -->
+      </div>
+    </div>
+                <div class="user-avatar">CD</div>
+                <span id="doctor-name">Chargement...</span>
+            </div>
+        </div>
+        
+        <!-- Dashboard Cards -->
+        <div class="dashboard-cards">
+            <div class="card card-1">
+                <div class="card-icon">
+                    <i class="fas fa-file-alt"></i>
+                </div>
+                <div class="card-content">
+                    <p class="card-title">Total Vœux</p>
+                    <p class="card-value">0</p>
+                    <a href="#" class="card-link">Voir tous les vœux</a>
+                </div>
+            </div>
+            
+            <div class="card card-2">
+                <div class="card-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="card-content">
+                    <p class="card-title">Vœux Acceptés</p>
+                    <p class="card-value">0</p>
+                    <a href="#" class="card-link">Voir les vœux acceptés</a>
+                </div>
+            </div>
+            
+            <div class="card card-3">
+                <div class="card-icon">
+                    <i class="fas fa-sync-alt"></i>
+                </div>
+                <div class="card-content">
+                    <p class="card-title">En Négociation</p>
+                    <p class="card-value">0</p>
+                    <a href="#" class="card-link">Gérer les négociations</a>
+                </div>
+            </div>
+            
+            <div class="card card-1">
+                <div class="card-icon">
+                    <i class="fas fa-hourglass-half"></i>
+                </div>
+                <div class="card-content">
+                    <p class="card-title">En Attente</p>
+                    <p class="card-value">0</p>
+                    <a href="#" class="card-link">Traiter les vœux en attente</a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Filters -->
+        <div class="filters">
+            <h3 class="filters-title">Filtres</h3>
+            <div class="filters-content">
+                <div class="filter-group">
+                    <label for="filter-status">Statut</label>
+                    <select id="filter-status">
+                        <option value="">Tous les statuts</option>
+                        <option value="en attente">En attente</option>
+                        <option value="accepté">Accepté</option>
+                        <option value="en négociation">En négociation</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label for="filter-grade">Grade</label>
+                    <select id="filter-grade">
+                        <option value="">Tous les grades</option>
+                        <option value="MAB">MAB</option>
+                        <option value="MAA">MAA</option>
+                        <option value="MCB">MCB</option>
+                        <option value="MCA">MCA</option>
+                        <option value="PROF">PROF</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label for="filter-department">Département</label>
+                    <select id="filter-department">
+                        <option value="">Tous les départements</option>
+                        <option value="SIQ">SIQ</option>
+                        <option value="AI">AI</option>
+                        <option value="SD">SD</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="filter-buttons">
+                <button class="filter-button filter-reset">Réinitialiser</button>
+                <button class="filter-button filter-apply">Appliquer</button>
+            </div>
+        </div>
+        
+        <!-- Voeux Table -->
+        <div class="voeux-table">
+            <div class="table-header">
+                <h3 class="table-title">Liste des Vœux des Enseignants</h3>
+                <div class="table-actions">
+                    <button class="table-button btn-export" onclick="exportToExcel()">
+                        <i class="fas fa-file-excel"></i> Exporter Excel
+                    </button>
+                    <button class="table-button btn-export" onclick="exportToPDF()">
+                        <i class="fas fa-file-pdf"></i> Exporter PDF
+                    </button>
+                </div>
+            </div>
+            
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Enseignant</th>
+                            <th>Grade</th>
+                            <th>Département</th>
+                            <th style="min-width: 300px;">Modules demandés</th>
+                            <th>PFE Licence</th>
+                            <th>PFE Master</th>
+                            <th>Heures Sup</th>
+                            <th>Commentaire</th>
+                            <th>Statut</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% teachers.forEach(teacher => { %>
+                        <tr>
+                            <td><%= teacher.prenom %> <%= teacher.nom %></td>
+                            <td><%= teacher.grade %></td>
+                            <td><%= teacher.departement %></td>
+                   <td>
+  <div class="module-list">
+    <% 
+      // Grouper les modules par semestre
+      const modulesBySemestre = {};
+      teacher.modules.forEach(module => {
+        if (!modulesBySemestre[module.semestre]) modulesBySemestre[module.semestre] = [];
+        modulesBySemestre[module.semestre].push(module);
+      });
+      // Afficher chaque semestre séparément
+      Object.keys(modulesBySemestre).sort().forEach(sem => { 
+    %>
+      <div style="margin-bottom:8px;">
+        <span style="color:#82828d;font-weight:bold;"><%= sem %> :</span>
+        <% 
+          // Trier par ordre dans chaque semestre
+          modulesBySemestre[sem].sort((a, b) => (a.ordre || 0) - (b.ordre || 0)).forEach((module, idx) => { 
+        %>
+          <div class="module-item" style="margin-left:16px;">
+            <span class="module-order" style="color:#6a6a77; font-weight:bold;">
+              Choix <%= idx + 1 %> 
+            </span>
+            <span class="module-type <%= module.type_enseignement.toLowerCase() %>">
+              <%= module.type_enseignement %>
+            </span>
+            <span class="module-name"><%= module.nom_module %></span>
+            <span class="module-info" style="color:#726f7d; font-size:12px;">
+              <% if (module.niveau) { %> | <%= module.niveau %> <% } %>
+              <% if (module.semestre) { %> | <%= module.semestre %> <% } %>
+              <% if (module.specialite) { %> | <%= module.specialite %> <% } %>
+            </span>
+          </div>
+        <% }) %>
+      </div>
+    <% }) %>
+  </div>
+</td>
+                            <td><%= teacher.nb_pfe_licence %></td>
+                            <td><%= teacher.nb_pfe_master %></td>
+                            <td><%= teacher.heures_sup %></td>
+                            <td><%= teacher.commentaire %></td>
+                            <td>
+                                <span class="status status-<%= teacher.status ? teacher.status.replace(' ', '-') : 'none' %>">
+                                    <%= teacher.status || 'N/A' %>
+                                </span>
+                            </td>
+                            <td>
+                                <% if (teacher.status !== 'accepté') { %>
+                                <div class="action-buttons">
+    <button class="btn-action btn-accept" 
+            data-id="<%= teacher.voeu_id %>"
+            onclick="acceptVoeu(<%= teacher.voeu_id %>)">
+        Accepter
+    </button>
+    <button class="btn-action btn-negotiate" 
+            onclick="openNegotiateModal(<%= teacher.voeu_id %>, <%= teacher.id %>)">
+        Négocier
+    </button>
+</div>
+                                <% } else { %>
+                                <span class="text-muted">Déjà accepté</span>
+                                <% } %>
+                            </td>
+
+                        </tr>
+                        <% }) %>
+                    </tbody>
+                
+                </table>
+            </div>
+            
+            <div class="pagination">
+                <button class="active">1</button>
+                <button >2</button>
+                <button>3</button>
+                <button>4</button>
+                <button>5</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal de Négociation -->
+    <div id="negotiateModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <div class="modal-header">
+                <h2 class="modal-title">Négociation du Vœu</h2>
+            </div>
+            
+            <div class="negotiation-section">
+                <div class="form-row">
+                    <div class="form-column">
+                        <div class="form-group">
+                            <label>Enseignant:</label>
+                            <p id="teacher-name">Mohamed Rahmani (MCB - SIQ)</p>
+                        </div>
+                    </div>
+                    <div class="form-column">
+                        <div class="form-group">
+                            <label>Statut actuel:</label>
+                            <p><span id="current-status" class="status status-pending">En attente</span></p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="negotiation-message">Message de négociation:</label>
+                    <textarea id="negotiation-message" placeholder="Expliquez les raisons de votre contre-proposition..."></textarea>
+                    <div style="text-align: right; margin-top: 5px;">
+                        <button class="btn-send" onclick="">Envoyer le message</button>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Discussion du Vœu :</label>
+                    <div class="module-selection"></div>
+                </div>
+            </div>
+        </div> 
+    </div>
+     <!-- Zone de notifications -->
+<script>
+async function loadNotifications() {
+  const token = localStorage.getItem('token'); 
+  const res = await fetch('/api/notifications', {
+    headers: {
+      'Authorization': `Bearer ${token}`
+    }
+  });
+  const notifications = await res.json();
+  console.log('Notifications reçues:', notifications);
+  const notifCount = notifications.filter(n => n.statut === 'non lu').length;
+
+ const notifCountElem = document.getElementById('notif-count');
+notifCountElem.textContent = notifCount > 0 ? notifCount : '';
+notifCountElem.style.display = notifCount > 0 ? 'flex' : 'none';
+  const notifList = document.getElementById('notif-list');
+  notifList.innerHTML = notifications.length === 0
+    ? "<div style='padding:10px;'>Aucune notification</div>"
+    : notifications.map(n => `
+        <div style="padding:10px; border-bottom:1px solid #eee; background:${n.statut === 'non lu' ? '#f9f9f9' : '#fff'};">
+          ${n.message}<br>
+          <small style="color:#888;">${new Date(n.created_at).toLocaleString()}</small>
+        </div>
+      `).join('');
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  loadNotifications();
+  setInterval(loadNotifications, 30000);
+
+  const notifBell = document.getElementById('notif-bell');
+  notifBell.addEventListener('click', async () => {
+    const token = localStorage.getItem('token');
+    // Marque toutes les notifications comme lues côté backend
+    await fetch('/api/notifications/read/all', {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+    // Recharge la liste et le compteur
+    await loadNotifications();
+
+    // Affiche/masque la liste
+    const notifList = document.getElementById('notif-list');
+    notifList.style.display = notifList.style.display === 'block' ? 'none' : 'block';
+  });
+});
+</script>
+
+    <script src="chef.js"></script>
+
+</body>
+</html>

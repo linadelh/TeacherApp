@@ -1,11 +1,10 @@
 const { Sequelize } = require('sequelize');
 
 // Configuration de la connexion DB (à adapter selon votre config)
-const sequelize = new Sequelize('gestion_voeux', 'root', '0101', {
+const sequelize = new Sequelize('gestion_voeux', 'root', '', {
   host: 'localhost',
   dialect: 'mysql' // ou 'postgres', 'sqlite', etc.
 });
-
 
 // Importe les modèles
 const Utilisateur = require('./Utilisateur');
@@ -13,6 +12,25 @@ const Enseignant = require('./Enseignant');
 const Voeu = require('./Voeu');
 const Module = require('./Module');
 const ModuleVoeu = require('./ModuleVoeu'); 
+const Message = require('./Message')(sequelize, Sequelize.DataTypes);
+const Notification = require('./Notification'); 
+// Définition de l'objet models
+const models = {
+  Utilisateur,
+  Enseignant,
+  Voeu,
+  Module,
+  ModuleVoeu,
+  Message,
+  Notification 
+};
+
+// Appelle les associations définies dans chaque modèle s'il y en a
+Object.values(models).forEach(model => {
+  if (typeof model.associate === 'function') {
+    model.associate(models);
+  }
+});
 
 function setupAssociations() {
   // Relation 1: Utilisateur → Enseignant (1-to-1)
@@ -43,18 +61,14 @@ function setupAssociations() {
     otherKey: 'voeu_id'
   });
 }
+
 setupAssociations();
+
+
+
 // Exporte les modèles + associations
 module.exports = {
   sequelize,
-  Utilisateur,
-  Enseignant,
-  Voeu,
-  Module,
-  ModuleVoeu,
-  setupAssociations
+  ...models,
+  setupAssociations,
 };
-
-
-
-

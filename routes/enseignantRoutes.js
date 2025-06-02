@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const { Enseignant, Utilisateur } = require('../models'); // Importer les modèles
+const { Enseignant, Utilisateur, Voeu } = require('../models'); // Importer les modèles
+const authenticateToken = require('../middlewares/authMiddleware'); // Adjust if named differently
 
 
 // ✅ GET /api/enseignants : récupérer tous les enseignants
@@ -49,6 +50,37 @@ router.post('/', async (req, res) => {
   }
 });
 
+
+router.get('/check-voeu', authenticateToken, async (req, res) => {
+    try {
+        const userId = req.user?.id;
+        const voeu = await Voeu.findOne({
+            where: { utilisateur_id: userId }
+        });
+        res.json({ hasVoeu: !!voeu });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+router.get('/info', authenticateToken, async (req, res) => {
+    try {
+        const userId = req.user?.id;
+        const user = await Utilisateur.findByPk(userId, {
+            attributes: ['nom', 'prenom', 'faculte']  // ✅ include faculte here
+        });
+
+        if (!user) {
+            return res.status(404).json({ error: 'Utilisateur non trouvé' });
+        }
+
+        res.json(user);
+    } catch (error) {
+        console.error('Erreur info utilisateur:', error);
+        res.status(500).json({ error: 'Erreur serveur' });
+    }
+});
 
 
 module.exports = router;

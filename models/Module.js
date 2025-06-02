@@ -10,11 +10,16 @@ const Module = sequelize.define('Module', {
     autoIncrement: true
   },
   niveau: {
-    type: DataTypes.ENUM('L1', 'L2', 'L3', 'M1', 'M2'),
+    type: DataTypes.ENUM('L1', 'L2', 'L3', 'M1', 'M2', 'ING1', 'ING2', 'ING3'),
     allowNull: false
   },
   specialite: {
-    type: DataTypes.ENUM('TRONC_COMMUN','ACAD', 'ISIL', 'GTR', 'BIOINFO', 'SII', 'IV', 'BIGDATA', 'HPC', 'IL', 'SSI', 'RSD'),
+     type: DataTypes.ENUM(
+    'TRONC_COMMUN', 'ACAD', 'ISIL', 'GTR',
+    'BIOINFO', 'SII', 'IV', 'BIGDATA',
+    'HPC', 'IL', 'SSI', 'RSD',
+    'SOFTWARE_ENGINEERING', 'CYBER_SECURITE'
+  ),
     allowNull: false
   },
   semestre: {
@@ -24,6 +29,10 @@ const Module = sequelize.define('Module', {
   nom_module: {
     type: DataTypes.STRING(100),
     allowNull: false
+  },
+  faculte: {
+    type: DataTypes.STRING(200),
+    allowNull: true, 
   },
   heures_cours: {
     type: DataTypes.INTEGER,
@@ -39,6 +48,7 @@ const Module = sequelize.define('Module', {
   }
 }, {
   timestamps: false,
+  tableName: 'Modules', 
   indexes: [
     {
       unique: true,

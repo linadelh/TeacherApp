@@ -1,12 +1,10 @@
 
+
 // controllers/voeuController.js
 const { Voeu, ModuleVoeu, Module } = require('../models');
 const { Op } = require('sequelize');
 
-/**
- * Vérifie qu’on a bien 3 modules par semestre,
- * qu’ils existent et appartiennent au bon semestre.
- */
+
 async function validerChoixParSemestre(choixS1, choixS2) {
   if (!Array.isArray(choixS1) || !Array.isArray(choixS2)) {
     return { valide: false, message: "Les choix doivent être des tableaux." };
@@ -64,7 +62,7 @@ exports.soumettreFicheVoeux = async (req, res) => {
   try {
     const utilisateurId = req.user.enseignantId || req.user.id;
     const {
-      choixS1,  // ne plus donner de valeur par défaut ici
+      choixS1,  
       choixS2,
       nb_pfe_licence = 1,
       nb_pfe_master = 1,
@@ -119,18 +117,20 @@ exports.soumettreFicheVoeux = async (req, res) => {
 
     // 📦 6. Préparation et bulk insert
     const voeuxModules = [];
-    for (const sem of [choixS1, choixS2]) {
-      for (const { moduleId, type_enseignement } of sem) {
-        for (let t of type_enseignement) {
-          t = ['cours','td','tp'].includes(t.toLowerCase()) ? t.toUpperCase() : t;
-          voeuxModules.push({
-            voeu_id: voeu.id,
-            module_id: moduleId,
-            type_enseignement: t
-          });
-        }
-      }
-    }
+[choixS1, choixS2].forEach((semestreChoix) => {
+  semestreChoix.forEach((choix, choixIdx) => {
+    const { moduleId, type_enseignement } = choix;
+    type_enseignement.forEach(t => {
+      t = ['cours','td','tp'].includes(t.toLowerCase()) ? t.toUpperCase() : t;
+      voeuxModules.push({
+        voeu_id: voeu.id,
+        module_id: moduleId,
+        type_enseignement: t,
+        ordre: choixIdx + 1 // <-- ici choixIdx est bien défini
+      });
+    });
+  });
+});
     await ModuleVoeu.bulkCreate(voeuxModules);
 
     // ✅ Succès
@@ -150,101 +150,72 @@ exports.soumettreFicheVoeux = async (req, res) => {
  */
 exports.recupererDerniersVoeux = async (req, res) => {
   const utilisateurId = req.user.enseignantId || req.user.id;
-  
+
   try {
     const dernierVoeu = await Voeu.findOne({
       where: { utilisateur_id: utilisateurId },
       order: [['date_soumission', 'DESC']],
       include: [{
         model: ModuleVoeu,
+        as: 'modules_voeux',
         include: [{
           model: Module,
-          attributes: ['id', 'nom', 'niveau', 'filiere', 'semestre', 'nb_heures_cours', 'nb_heures_td', 'nb_heures_tp']
+          as: 'Module',
+          attributes: ['id', 'nom_module', 'niveau', 'specialite', 'semestre']
         }]
       }]
     });
-    
+
     if (!dernierVoeu) {
       return res.status(404).json({ 
         message: "Vous n'avez pas encore soumis de fiche de vœux. Veuillez en créer une nouvelle."
       });
     }
-    
-    // Organiser les modules par semestre pour une meilleure lisibilité
-    const moduleS1 = [];
-    const moduleS2 = [];
-    
-    dernierVoeu.ModuleVoeux.forEach(mv => {
-      if (mv.Module.semestre === 'S1') {
-        moduleS1.push({
-          id: mv.Module.id,
-          nom: mv.Module.nom,
-          type_enseignement: mv.type_enseignement,
+
+    // Regroupement des modules avec fusion des types d'enseignement
+    const voeuxMap = new Map();
+
+    dernierVoeu.modules_voeux.forEach(mv => {
+      const key = mv.Module.id;
+      if (!voeuxMap.has(key)) {
+        voeuxMap.set(key, {
           niveau: mv.Module.niveau,
-          filiere: mv.Module.filiere,
-          nb_heures_cours: mv.Module.nb_heures_cours,
-          nb_heures_td: mv.Module.nb_heures_td,
-          nb_heures_tp: mv.Module.nb_heures_tp
-        });
-      } else if (mv.Module.semestre === 'S2') {
-        moduleS2.push({
-          id: mv.Module.id,
-          nom: mv.Module.nom,
-          type_enseignement: mv.type_enseignement,
-          niveau: mv.Module.niveau,
-          filiere: mv.Module.filiere,
-          nb_heures_cours: mv.Module.nb_heures_cours,
-          nb_heures_td: mv.Module.nb_heures_td,
-          nb_heures_tp: mv.Module.nb_heures_tp
+          specialite: mv.Module.specialite,
+          module: mv.Module.nom_module,
+          semestre: mv.Module.semestre,
+          cours: false,
+          td: false,
+          tp: false
         });
       }
+
+      const moduleEntry = voeuxMap.get(key);
+      if (mv.type_enseignement === 'Cours') moduleEntry.cours = true;
+      if (mv.type_enseignement === 'TD') moduleEntry.td = true;
+      if (mv.type_enseignement === 'TP') moduleEntry.tp = true;
     });
-    
-    // Structurer la réponse
+
+    const voeux = Array.from(voeuxMap.values());
+
     const response = {
       id: dernierVoeu.id,
-      annee: dernierVoeu.annee,
-      date_soumission: dernierVoeu.date_soumission,
-      nb_pfe_licence: dernierVoeu.nb_pfe_licence,
-      nb_pfe_master: dernierVoeu.nb_pfe_master,
-      heures_sup: dernierVoeu.heures_sup,
-      commentaire: dernierVoeu.commentaire,
-      choixS1: moduleS1,
-      choixS2: moduleS2
+      voeux,
+      pfe: {
+        master: dernierVoeu.nb_pfe_master.toString(),
+        licence: dernierVoeu.nb_pfe_licence.toString()
+      },
+      heures_sup: dernierVoeu.heures_sup.toString(),
+      commentaire: dernierVoeu.commentaire
     };
-    
+
     res.status(200).json(response);
-    
+
   } catch (error) {
     console.error("Erreur lors de la récupération:", error);
     res.status(500).json({ message: "Erreur serveur lors de la récupération des données." });
   }
 };
 
-/**
- * Liste tous les modules disponibles pour les vœux
- */
-exports.listerModules = async (req, res) => {
-  try {
-    const modules = await Module.findAll({
-      attributes: ['id', 'nom', 'niveau', 'filiere', 'semestre', 'nb_heures_cours', 'nb_heures_td', 'nb_heures_tp'],
-      order: [['semestre', 'ASC'], ['niveau', 'ASC'], ['filiere', 'ASC'], ['nom', 'ASC']]
-    });
-    
-    // Organiser les modules par semestre
-    const modulesS1 = modules.filter(m => m.semestre === 'S1');
-    const modulesS2 = modules.filter(m => m.semestre === 'S2');
-    
-    res.status(200).json({
-      modulesS1,
-      modulesS2
-    });
-    
-  } catch (error) {
-    console.error("Erreur lors de la récupération des modules:", error);
-    res.status(500).json({ message: "Erreur serveur lors de la récupération des modules." });
-  }
-};
 
 /**
  * Modifie une fiche de vœux existante
@@ -255,27 +226,36 @@ exports.modifierFicheVoeux = async (req, res) => {
     const voeuId = req.params.id;
     const { choixS1, choixS2, nb_pfe_licence, nb_pfe_master, heures_sup, commentaire } = req.body;
 
-    // Validation de l'existence du vœu
+    // Validation simple
+    if (!Array.isArray(choixS1) || !Array.isArray(choixS2)) {
+      return res.status(400).json({
+        message: "Les champs choixS1 et choixS2 doivent être des tableaux valides."
+      });
+    }
+
+    // Validation existence du voeu
     const voeuExist = await Voeu.findByPk(voeuId);
     if (!voeuExist) {
       return res.status(404).json({ message: 'Vœu non trouvé.' });
     }
 
-    // Mise à jour de la fiche de vœux
+    // Mise à jour fiche
     const updatedVoeu = await voeuExist.update({
       nb_pfe_licence,
       nb_pfe_master,
       heures_sup,
       commentaire,
-      date_soumission: new Date()  // Mettre à jour la date de soumission si nécessaire
+      date_soumission: new Date()
     });
 
-    // Mise à jour des modules associés
-    await ModuleVoeu.destroy({ where: { voeu_id: voeuId } }); // Supprimer les anciens modules
+    // Suppression anciens modules
+    await ModuleVoeu.destroy({ where: { voeu_id: voeuId } });
+
+    // Construction nouveaux modules
     const voeuxModules = [];
 
     const formaterModules = (choixSemestre) => {
-      choixSemestre.forEach(choix => {
+      choixSemestre.forEach(( choix )=> {
         choix.type_enseignement.forEach(type => {
           let typeFormatted;
           switch (type.toLowerCase()) {
@@ -288,7 +268,8 @@ exports.modifierFicheVoeux = async (req, res) => {
           voeuxModules.push({
             voeu_id: updatedVoeu.id,
             module_id: choix.moduleId,
-            type_enseignement: typeFormatted
+            type_enseignement: typeFormatted ,
+            
           });
         });
       });
@@ -297,14 +278,15 @@ exports.modifierFicheVoeux = async (req, res) => {
     formaterModules(choixS1);
     formaterModules(choixS2);
 
-    // Enregistrer les nouveaux modules associés
+    // Insertion
     await ModuleVoeu.bulkCreate(voeuxModules);
 
-    // Réponse finale
+    // Réponse OK
     res.status(200).json({
       message: 'Fiche de vœux mise à jour avec succès.',
       voeuId: updatedVoeu.id
     });
+
   } catch (error) {
     console.error("❌ Erreur lors de la mise à jour :", error);
     res.status(500).json({
@@ -312,3 +294,4 @@ exports.modifierFicheVoeux = async (req, res) => {
     });
   }
 };
+

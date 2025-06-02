@@ -141,75 +141,116 @@
       });
     });
 
-    function handleAuth(isLogin) {
+    async function handleAuth(isLogin) {
   const API_URL = "/api/auth";
-  const url = isLogin ? `${API_URL}/login` : `${API_URL}/register`;
-  const data = isLogin ? {
-    email: document.getElementById("login-email").value,
-    password: document.getElementById("login-password").value
-  } : {
-    prenom: document.getElementById("signup-prenom").value,
-    nom: document.getElementById("signup-nom").value,
-    email: document.getElementById("signup-email").value,
-    password: document.getElementById("signup-password").value,
-    grade: document.getElementById("signup-grade").value,
-    faculte: document.getElementById("signup-faculte").value,
-    departement: document.getElementById("signup-departement").value,
-    role: "enseignant"
-  };
-  if (!isLogin && data.departement.trim() === "") {
-  data.departement = null; // ✅ null accepté par la base de données
-    }
-  fetch(url, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data),
-  })
-    .then(async (response) => {
-      const responseData = await response.json().catch(() => null);
+  const url     = isLogin ? `${API_URL}/login` : `${API_URL}/register`;
 
-      if (response.ok) {
-        // ✅ Succès
-        if (isLogin) {
-          if (responseData?.token) {
-            localStorage.setItem("token", responseData.token);
-            window.location.href = "/espace.html"; // Redirection après connexion
-          } else {
-            alert("❌ Connexion échouée : Token manquant.");
-          }
-        } else {
-          alert("✅ Inscription réussie. Vous pouvez maintenant vous connecter.");
-          document.querySelector(".switcher-login")?.click(); // Bascule vers le formulaire de connexion
-        }
-      } else {
-        // ❌ Erreur HTTP avec message du serveur
-        const errorMsg = responseData?.message || "Une erreur est survenue.";
-        alert(
-          isLogin
-            ? `❌ Échec de la connexion : ${errorMsg}`
-            : `❌ Erreur lors de l'inscription : ${errorMsg}`
-        );
+  // Prépare le payload selon login ou signup
+  const data = isLogin
+    ? {
+        email: document.getElementById("login-email").value,
+        password: document.getElementById("login-password").value
       }
-    })
-    .catch((error) => {
-      // ❌ Erreur réseau ou serveur inattendue
-      console.error("🚨 Erreur réseau ou serveur :", error);
-      alert(
-        "💥 Une erreur est survenue. Vérifiez votre connexion ou réessayez plus tard."
-      );
-    });
-    }
-    // Gérer l'affichage du département selon la faculté
-    const faculteSelect = document.getElementById("signup-faculte");
-    const departementSelect = document.getElementById("signup-departement");
-    const departementContainer = document.getElementById("departement-container");
+    : {
+        prenom: document.getElementById("signup-prenom").value,
+        nom: document.getElementById("signup-nom").value,
+        email: document.getElementById("signup-email").value,
+        password: document.getElementById("signup-password").value,
+        grade: document.getElementById("signup-grade").value,
+        faculte: document.getElementById("signup-faculte").value,
+        departement:
+          document.getElementById("signup-departement").value.trim() || null,
+        role: "enseignant"
+      };
 
-    faculteSelect.addEventListener("change", () => {
-      const isInfo = faculteSelect.value.toLowerCase() === "informatique";
-      departementContainer.style.display = isInfo ? "block" : "none";
-      departementSelect.required = isInfo;
-      if (!isInfo) departementSelect.value = "";
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data)
     });
-  </script>
+    const responseData = await response.json().catch(() => null);
+
+    if (!response.ok) {
+      // Erreur HTTP (400, 401, 500…)
+      const msg = responseData?.message || "Une erreur est survenue.";
+      return alert(
+        isLogin
+          ? `❌ Échec de la connexion : ${msg}`
+          : `❌ Erreur lors de l'inscription : ${msg}`
+      );
+    }
+
+    // Si on est en mode SIGNUP, on bascule vers login après succès
+    if (!isLogin) {
+      alert("✅ Inscription réussie. Connectez-vous maintenant.");
+      return document.querySelector(".switcher-login")?.click();
+    }
+
+    // MODE LOGIN → on gère le token et la redirection
+    const token = responseData.token;
+    if (!token) {
+      return alert("❌ Connexion échouée : Token manquant.");
+    }
+    // 1️⃣ Stocke le JWT
+    localStorage.setItem("token", token);
+
+    // 2️⃣ Décode le payload pour lire le rôle
+    let payload = {};
+    try {
+      payload = JSON.parse(atob(token.split(".")[1]));
+    } catch (e) {
+      console.warn("⚠️ Impossible de décoder le token", e);
+    }
+
+    // 3️⃣ Redirection selon rôle
+    if (payload.role === "enseignant") {
+      window.location.href = "espace.html";
+    } else if (payload.role === "chef_departement") {
+      window.location.href = "espacechef.html";
+    } else {
+      window.location.href = "/";
+    }
+  } catch (error) {
+    console.error("🚨 Erreur réseau ou serveur :", error);
+    alert("💥 Une erreur est survenue. Vérifiez votre connexion.");
+  }
+}
+
+// AJOUT DU CODE MANQUANT: Gestion de l'affichage du département selon la faculté
+document.addEventListener('DOMContentLoaded', () => {
+  const faculteSelect = document.getElementById("signup-faculte");
+  const departementContainer = document.getElementById("departement-container");
+  const departementSelect = document.getElementById("signup-departement");
+
+  // Départements abrégés par faculté
+  const departementsParFaculte = {
+    "mathematique": ["ALG", "ANP", "MTA", "SID"], // Algèbre, Analyse, Math Appliq, Statistique
+    "informatique": ["SIQ", "AI", "SD"], // Systèmes Info, AI, Science Données
+    "genie civil": ["GST", "GGC", "GHU", "GRT"], // Génie Struct, Géotech, Hydraulique, Routes
+    "physique": ["PHY-T", "PHY-M", "PHY-E", "PHY-N"], // Physique Théorique, Matériaux, Électronique, Énergétique
+    "electronique": ["SYS", "TEL", "AUT", "INS"] // Systèmes, Télécoms, Automatique, Instrumentation
+  };
+
+  function updateDepartements() {
+    const faculte = faculteSelect.value;
+    const departements = departementsParFaculte[faculte] || [];
+    
+    departementSelect.innerHTML = '<option value="">-- Sélectionner votre département --</option>';
+    departements.forEach(dept => {
+      const option = document.createElement('option');
+      option.value = dept;
+      option.textContent = dept;
+      departementSelect.appendChild(option);
+    });
+
+    departementContainer.style.display = departements.length > 0 ? "block" : "none";
+    departementSelect.required = departements.length > 0;
+  }
+
+  faculteSelect.addEventListener("change", updateDepartements);
+  updateDepartements();
+});
+</script>
 </body>
 </html>

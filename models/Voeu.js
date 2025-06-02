@@ -60,5 +60,10 @@ const Voeu = sequelize.define('Voeu', {
   timestamps: false,
   tableName: 'voeux'
 });
-
+Voeu.associate = (models) => {
+  Voeu.hasMany(models.ModuleVoeu, {
+    foreignKey: 'voeu_id',
+    as: 'modules_voeux'
+  });
+};
 module.exports = Voeu;

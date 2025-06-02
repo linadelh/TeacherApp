@@ -1,7 +1,9 @@
 let allModules = [];
 let data = {};
 let selectedModules = {}; 
-// { choiceId: { moduleId, moduleNom, niveau, specialite, semestre } }
+let voeuxId  = null;
+const urlParams = new URLSearchParams(window.location.search);
+const isEditMode = urlParams.get('mode') === 'edit';
 
 document.addEventListener('DOMContentLoaded', async () => {
   try {
@@ -18,7 +20,20 @@ document.addEventListener('DOMContentLoaded', async () => {
       data[niveau][specialite][semestre].push({ id, nom: nom_module });
     });
 
-    initDropdowns();
+    await initDropdowns();
+    if (isEditMode) {
+      const token = localStorage.getItem('token');
+      const voeuxRes = await fetch('/api/voeux/dernier', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      if (!voeuxRes.ok) throw new Error("Impossible de récupérer les vœux"); 
+      const voeuxData = await voeuxRes.json();
+      //console.log(voeuxData);
+      if(voeuxData.id)voeuxId = voeuxData.id; // utile pour faire le PUT
+      prefillForm(voeuxData);
+    }
   } catch (err) {
     console.error("❌ Chargement modules:", err);
     alert("Impossible de charger les modules. Recharge la page.");
@@ -26,91 +41,94 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 function initDropdowns() {
-  document.querySelectorAll('tr[data-choice]').forEach(row => {
-    const choiceId       = row.dataset.choice;
-    const niveauSelect   = row.querySelector('.niveau-select');
-    const specialiteSel  = row.querySelector('.specialite-select');
-    const semestreInput  = row.querySelector('.semestre-select'); // hidden or select
-    const moduleSelect   = row.querySelector('.module-select');
+  return new Promise((resolve) => {
+    document.querySelectorAll('tr[data-choice]').forEach(row => {
+      const choiceId       = row.dataset.choice;
+      const niveauSelect   = row.querySelector('.niveau-select');
+      const specialiteSel  = row.querySelector('.specialite-select');
+      const semestreInput  = row.querySelector('.semestre-select'); // hidden or select
+      const moduleSelect   = row.querySelector('.module-select');
 
-    // 1️⃣ Remplir le select niveau
-    resetDropdown(niveauSelect, "Niveau");
-    Object.keys(data).forEach(niv => 
-      niveauSelect.appendChild(createOption(niv, niv))
-    );
+      // 1️⃣ Remplir le select niveau
+      resetDropdown(niveauSelect, "Niveau");
+      Object.keys(data).forEach(niv => 
+        niveauSelect.appendChild(createOption(niv, niv))
+      );
 
-    // 2️⃣ À chaque changement de filtre (niveau / spé / sem), on recharge le module list
-    const onFilterChange = () => {
-      resetDropdown(moduleSelect, "Module");
-      delete selectedModules[choiceId];
-
-      const niv  = niveauSelect.value;
-      const spec = specialiteSel.value;
-      const sem  = semestreInput.value || semestreInput.getAttribute('value') || "";
-
-      if (niv && spec && sem) {
-        updateModuleDropdown(niv, spec, sem, moduleSelect, choiceId);
-      }
-    };
-
-    niveauSelect.addEventListener('change', () => {
-      // réinitialise spé + module
-      resetDropdown(specialiteSel, "Spécialité");
-      resetDropdown(moduleSelect,   "Module");
-      delete selectedModules[choiceId];
-
-      const niv = niveauSelect.value;
-      if (niv && data[niv]) {
-        Object.keys(data[niv]).forEach(spec => 
-          specialiteSel.appendChild(createOption(spec, spec))
-        );
-      }
-      // pas d'appel global, on attend le spécif / semestre
-    });
-
-    specialiteSel.addEventListener('change', onFilterChange);
-    semestreInput.addEventListener('change', onFilterChange);
-
-    // 3️⃣ Quand on choisit un module, on stocke la sélection puis on met à jour *les autres* lignes
-    moduleSelect.addEventListener('change', () => {
-      const selId = moduleSelect.value;
-      // Sauvegarde de l'ancienne valeur avant de mettre à jour
-      const previousValue = selectedModules[choiceId]?.moduleId;
-      
-      if (selId) {
-        const selNom = moduleSelect.selectedOptions[0]?.textContent || "";
-        selectedModules[choiceId] = {
-          moduleId: selId,
-          moduleNom: selNom,
-          niveau: niveauSelect.value,
-          specialite: specialiteSel.value,
-          semestre: semestreInput.value || semestreInput.getAttribute('value') || ""
-        };
-      } else {
+      // 2️⃣ À chaque changement de filtre (niveau / spé / sem), on recharge le module list
+      const onFilterChange = () => {
+        resetDropdown(moduleSelect, "Module");
         delete selectedModules[choiceId];
-      }
-    
-      // Mettre à jour uniquement les autres lignes
-      document.querySelectorAll('tr[data-choice]').forEach(otherRow => {
-        const otherId = otherRow.dataset.choice;
-        if (otherId === choiceId) return; // On garde cette ligne comme avant
-    
-        const niv2   = otherRow.querySelector('.niveau-select').value;
-        const spec2  = otherRow.querySelector('.specialite-select').value;
-        const sem2El = otherRow.querySelector('.semestre-select');
-        const sem2   = sem2El.value || sem2El.getAttribute('value') || "";
-        const modSel2= otherRow.querySelector('.module-select');
-    
-        if (niv2 && spec2 && sem2) {
-          updateModuleDropdown(niv2, spec2, sem2, modSel2, otherId);
+
+        const niv  = niveauSelect.value;
+        const spec = specialiteSel.value;
+        const sem  = semestreInput.value || semestreInput.getAttribute('value') || "";
+
+        if (niv && spec && sem) {
+          updateModuleDropdown(niv, spec, sem, moduleSelect, choiceId);
+        }
+      };
+
+      niveauSelect.addEventListener('change', () => {
+        // réinitialise spé + module
+        resetDropdown(specialiteSel, "Spécialité");
+        resetDropdown(moduleSelect,   "Module");
+        delete selectedModules[choiceId];
+
+        const niv = niveauSelect.value;
+        if (niv && data[niv]) {
+          Object.keys(data[niv]).forEach(spec => 
+            specialiteSel.appendChild(createOption(spec, spec))
+          );
+        }
+        // pas d'appel global, on attend le spécif / semestre
+      });
+
+      specialiteSel.addEventListener('change', onFilterChange);
+      semestreInput.addEventListener('change', onFilterChange);
+
+      // 3️⃣ Quand on choisit un module, on stocke la sélection puis on met à jour *les autres* lignes
+      moduleSelect.addEventListener('change', () => {
+        const selId = moduleSelect.value;
+        const previousValue = selectedModules[choiceId]?.moduleId;
+
+        if (selId) {
+          const selNom = moduleSelect.selectedOptions[0]?.textContent || "";
+          selectedModules[choiceId] = {
+            moduleId: selId,
+            moduleNom: selNom,
+            niveau: niveauSelect.value,
+            specialite: specialiteSel.value,
+            semestre: semestreInput.value || semestreInput.getAttribute('value') || ""
+          };
+        } else {
+          delete selectedModules[choiceId];
+        }
+
+        // Mettre à jour uniquement les autres lignes
+        document.querySelectorAll('tr[data-choice]').forEach(otherRow => {
+          const otherId = otherRow.dataset.choice;
+          if (otherId === choiceId) return;
+
+          const niv2   = otherRow.querySelector('.niveau-select').value;
+          const spec2  = otherRow.querySelector('.specialite-select').value;
+          const sem2El = otherRow.querySelector('.semestre-select');
+          const sem2   = sem2El.value || sem2El.getAttribute('value') || "";
+          const modSel2= otherRow.querySelector('.module-select');
+
+          if (niv2 && spec2 && sem2) {
+            updateModuleDropdown(niv2, spec2, sem2, modSel2, otherId);
+          }
+        });
+
+        if (previousValue !== selId) {
+          moduleSelect.value = selId;
         }
       });
-      
-      // Si la sélection a changé, s'assurer que la valeur est bien mise à jour
-      if (previousValue !== selId) {
-        moduleSelect.value = selId;
-      }
     });
+
+    // Resolve immediately after setup
+    resolve();
   });
 }
 
@@ -181,10 +199,10 @@ function createOption(value, text) {
       });
       return total;
     }
-  
+  /*
     // Initialisation
     initDropdowns();
-    setupHourCheckboxes();
+    setupHourCheckboxes();*/
     
     console.log("Script de formulaire chargé avec succès");
   
@@ -205,6 +223,7 @@ function createOption(value, text) {
       })
       .then(data => {
         const u = data.user;
+        localStorage.setItem('userId', u.id);
         const divs = document.querySelectorAll(".teacher-info div");
         divs[0].querySelector("span").textContent = `${u.nom} ${u.prenom}`;
         divs[1].querySelector("span").textContent = u.grade;
@@ -221,7 +240,11 @@ function createOption(value, text) {
   };
   document.addEventListener('DOMContentLoaded', () => {
     const submitButton = document.querySelector('.submit-button');
-    
+    const urlParams = new URLSearchParams(window.location.search);
+    const mode = urlParams.get("mode");
+    if (mode === "edit") {
+      submitButton.textContent = "Mettre à jour ma fiche";
+    }
     submitButton.addEventListener('click', async (e) => {
         e.preventDefault();
         
@@ -283,39 +306,151 @@ function createOption(value, text) {
         };
         
         console.log("Données à envoyer:", JSON.stringify(ficheDeVoeux));
-        
+        const urlParams = new URLSearchParams(window.location.search);
+        const isEditMode = urlParams.get('mode') === 'edit';
+
         // Récupération du token
         const token = localStorage.getItem('token');
-        
+        console.log(token);
         if (!token) {
             alert("🔒 Vous devez être connecté(e) !");
             return;
         }
-        
         try {
-          const timestamp = new Date().getTime();
-          const response = await fetch(`http://localhost:5000/voeux/submit?t=${timestamp}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer ' + token
-                },
-                body: JSON.stringify(ficheDeVoeux)
-            });
-            
-            const data = await response.json();
-            
-            if (response.ok) {
-                alert('✅ Fiche de vœux envoyée avec succès !');
-                console.log('✅ Réponse du serveur :', data);
-            } else {
-                console.error(' Erreur :', data.message || 'Une erreur est survenue');
-                alert(' Erreur : ' + (data.message || 'Vérifiez vos données'));
-            }
-            
-        } catch (err) {
-            console.error(' Erreur réseau :', err);
-            alert(' Erreur de connexion au serveur');
-        }
+          const 
+          timestamp = new Date().getTime();
+          console.log(timestamp);
+          const apiUrl = isEditMode
+            ? `http://localhost:5000/api/voeux/update/${voeuxId}`
+            : `http://localhost:5000/api/voeux/submit?t=${timestamp}`;
+          const method = isEditMode ? 'PUT' : 'POST';
+
+          const response = await fetch(apiUrl, {
+              method: method,
+              headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': 'Bearer ' + token
+              },
+              body: JSON.stringify(ficheDeVoeux)
+          });
+          console.log(response.ok);
+          const data = await response.json();
+          console.log(data);
+          if (response.ok) {
+              console.log('✅ Réponse du serveur :', data);
+              // Au lieu d'afficher une alerte, redirigez vers accept.html
+              window.location.href = 'recap.html';
+          } else {
+              console.error('❌ Erreur :', data.message || 'Une erreur est survenue');
+              alert('❌ Erreur : ' + (data.message || 'Vérifiez vos données'));
+          }
+          
+      } catch (err) {
+          console.error('❌ Erreur réseau :', err);
+          alert('❌ Erreur de connexion au serveur');
+      }
     });
 });
+
+// ✅ Helper to ensure value exists in <select>
+function setSelectValue(selectElement, value) {
+  const exists = [...selectElement.options].some(opt => opt.value === value);
+  if (!exists && value !== "") {
+    const newOption = new Option(value, value, true, true); // text, value, selected, selected
+    selectElement.add(newOption);
+  }
+  selectElement.value = value;
+}
+
+// ✅ Main form prefill function
+function prefillForm(voeuxData) {
+  const voeux = voeuxData.voeux;
+  if (!voeux || voeux.length === 0) return;
+
+  // Sépare les voeux S1 et S2
+  const voeuxS1 = voeux.filter(v => v.semestre === "S1");
+  const voeuxS2 = voeux.filter(v => v.semestre === "S2");
+
+  const s1Rows = document.querySelectorAll('tr[data-choice^="s1"]');
+  const s2Rows = document.querySelectorAll('tr[data-choice^="s2"]');
+
+  // Remplir S1
+  voeuxS1.forEach((voeu, i) => {
+    const row = s1Rows[i];
+    if (!row) return;
+
+    const niveauSelect   = row.querySelector('.niveau-select');
+    const specialiteSel  = row.querySelector('.specialite-select');
+    const semestreInput  = row.querySelector('.semestre-select');
+    const moduleSelect   = row.querySelector('.module-select');
+
+    niveauSelect.value = voeu.niveau;
+    specialiteSel.innerHTML = "";
+    Object.keys(data[voeu.niveau]).forEach(spec =>
+      specialiteSel.appendChild(createOption(spec, spec))
+    );
+    specialiteSel.value = voeu.specialite;
+    semestreInput.value = voeu.semestre;
+
+    updateModuleDropdown(voeu.niveau, voeu.specialite, voeu.semestre, moduleSelect, row.dataset.choice);
+
+    const mod = allModules.find(m => m.nom_module === voeu.module && m.niveau === voeu.niveau && m.specialite === voeu.specialite && m.semestre === voeu.semestre);
+    if (mod) {
+      moduleSelect.value = mod.id;
+      selectedModules[row.dataset.choice] = {
+        moduleId: String(mod.id),
+        moduleNom: mod.nom_module,
+        niveau: voeu.niveau,
+        specialite: voeu.specialite,
+        semestre: voeu.semestre
+      };
+    }
+
+    if (voeu.cours)  row.querySelector('.hour-checkbox[data-hours="3"]').checked = true;
+    if (voeu.td)     row.querySelector('.hour-checkbox[data-hours="2"]').checked = true;
+    if (voeu.tp)     row.querySelector('.hour-checkbox[data-hours="1.5"]').checked = true;
+  });
+
+  // Remplir S2
+  voeuxS2.forEach((voeu, i) => {
+    const row = s2Rows[i];
+    if (!row) return;
+
+    const niveauSelect   = row.querySelector('.niveau-select');
+    const specialiteSel  = row.querySelector('.specialite-select');
+    const semestreInput  = row.querySelector('.semestre-select');
+    const moduleSelect   = row.querySelector('.module-select');
+
+    niveauSelect.value = voeu.niveau;
+    specialiteSel.innerHTML = "";
+    Object.keys(data[voeu.niveau]).forEach(spec =>
+      specialiteSel.appendChild(createOption(spec, spec))
+    );
+    specialiteSel.value = voeu.specialite;
+    semestreInput.value = voeu.semestre;
+
+    updateModuleDropdown(voeu.niveau, voeu.specialite, voeu.semestre, moduleSelect, row.dataset.choice);
+
+    const mod = allModules.find(m => m.nom_module === voeu.module && m.niveau === voeu.niveau && m.specialite === voeu.specialite && m.semestre === voeu.semestre);
+    if (mod) {
+      moduleSelect.value = mod.id;
+      selectedModules[row.dataset.choice] = {
+        moduleId: String(mod.id),
+        moduleNom: mod.nom_module,
+        niveau: voeu.niveau,
+        specialite: voeu.specialite,
+        semestre: voeu.semestre
+      };
+    }
+
+    if (voeu.cours)  row.querySelector('.hour-checkbox[data-hours="3"]').checked = true;
+    if (voeu.td)     row.querySelector('.hour-checkbox[data-hours="2"]').checked = true;
+    if (voeu.tp)     row.querySelector('.hour-checkbox[data-hours="1.5"]').checked = true;
+  });
+
+  // 🧠 Fill in PFE and commentaire
+  document.getElementById('pfe-master').value = voeuxData.pfe.master || "1";
+  document.getElementById('pfe-licence').value = voeuxData.pfe.licence || "1";
+  document.getElementById('heures-sup').value = voeuxData.heures_sup || "0";
+  document.getElementById('commentaire').value = voeuxData.commentaire || "";
+}

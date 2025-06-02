@@ -16,6 +16,11 @@ const ModuleVoeu = sequelize.define('ModuleVoeu', {
     type: DataTypes.INTEGER,
     allowNull: false
   },
+  ordre: {
+  type: DataTypes.INTEGER,
+  allowNull: false,
+  defaultValue: 1
+},
   type_enseignement: {
     type: DataTypes.ENUM('Cours', 'TD', 'TP'),
     allowNull: false
@@ -24,5 +29,9 @@ const ModuleVoeu = sequelize.define('ModuleVoeu', {
   tableName: 'module_voeux', // Pour explicitement lier à la table 'module_voeux'
   timestamps: false // Désactive les champs createdAt/updatedAt
 });
+ModuleVoeu.associate = (models) => {
+  ModuleVoeu.belongsTo(models.Module, { foreignKey: 'module_id', as: 'Module' });
+  ModuleVoeu.belongsTo(models.Voeu, { foreignKey: 'voeu_id', as: 'Voeu' });
+};
 
 module.exports = ModuleVoeu;

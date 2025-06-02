@@ -19,7 +19,7 @@ const Enseignant = sequelize.define('Enseignant', {
     allowNull: false,
   },
   departement: {
-    type: DataTypes.ENUM('SIQ', 'AI', 'SD'),
+    type: DataTypes.STRING(200),
     allowNull: true,
   },
   faculte: {

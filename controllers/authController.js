@@ -112,13 +112,14 @@ const login = async (req, res) => {
       departement: user.departement || user.Enseignant?.departement,
       anneeUniversitaire: "2024/2025" // À adapter selon votre logique métier
     };
+    const redirectTo = user.role === 'enseignant' ? '/voeu.html' : '/chef';
 
     // 5. Réponse avec toutes les données nécessaires
     res.json({
       message: "Connexion réussie.",
       token,
       user: userDataForFiche,
-      redirectTo: '/voeu.html' // Indication pour le frontend
+      redirectTo // Indication pour le frontend
     });
 
   } catch (error) {

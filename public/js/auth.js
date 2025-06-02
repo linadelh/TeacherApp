@@ -40,6 +40,7 @@ async function handleAuth(isLogin) {
         window.location.href = "/voeu.html";             // ➡️ Redirige vers la fiche
       } else {
         alert(result.message || "Identifiants incorrects");
+        //window.location.href = "/chef"; 
       }
     } else {
       // Pour l'inscription, on affiche juste un message

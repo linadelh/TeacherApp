@@ -378,6 +378,48 @@
                 padding: 20px;
             }
         }
+        .negotiation-box {
+            border: 1px solid #ccc;
+            padding: 1em;
+            margin-top: 2em;
+            margin-bottom: 2em;
+            background-color: #f9f9f9;
+        }
+        .negotiation-item {
+            padding: 15px 20px;
+            margin-bottom: 15px;
+            background-color: #fff;
+            border-radius: 12px;
+            box-shadow: 0 3px 8px rgba(26, 75, 165, 0.1);
+            transition: box-shadow 0.3s ease;
+        }
+
+        .negotiation-item:hover {
+            box-shadow: 0 6px 16px rgba(26, 75, 165, 0.2);
+        }
+
+        .negotiation-buttons {
+            margin-top: 10px;
+        }
+
+        .negotiation-buttons button {
+            background-color: #1a4ba5;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 14px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-right: 10px;
+        }
+
+        .negotiation-buttons button:hover {
+            background-color: #163b84;
+        }
+        #user-faculte,#Iuser-faculte{
+            text-transform: capitalize;
+        }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
@@ -404,7 +446,7 @@
                         </div>
                         <div class="user-details">
                             <h3>Bienvenue, Professeur</h3>
-                            <p>Faculté d'Informatique</p>
+                            <p>Faculté <p id="Iuser-faculte"></p></p>
                         </div>
                     </div>
                     <h2>Bienvenue dans votre espace</h2>
@@ -440,7 +482,7 @@
                         </div>
                         <div class="info-text">
                             <h3>Faculté</h3>
-                            <p>Informatique</p>
+                            <p id="user-faculte"></p>
                         </div>
                     </div>
                     <div class="info-item">
@@ -465,11 +507,28 @@
         document.addEventListener('DOMContentLoaded', function() {
             // Bouton pour accéder à la fiche de vœux
             const wishFormBtn = document.getElementById('wishFormBtn');
-            
-            wishFormBtn.addEventListener('click', function() {
-                window.location.href = '/voeu.html';
+
+    wishFormBtn.addEventListener('click', async function () {
+        try {
+            const response = await fetch('/api/enseignants/check-voeu', {
+                headers: {
+                    'Authorization': 'Bearer ' + localStorage.getItem('token') // Or however you store the token
+                }
             });
-            
+
+            const data = await response.json();
+            console.log("data");
+            if (data.hasVoeu) {
+                window.location.href = '/recap.html';
+            } else {
+                window.location.href = '/voeu.html';
+            }
+        } catch (err) {
+            console.error('Error checking voeu:', err);
+            window.location.href = '/voeu.html'; // Fallback
+        }
+    });
+         
             // Afficher la date actuelle
             const today = new Date();
             const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
@@ -495,6 +554,21 @@
                 card.style.transitionDelay = `${index * 0.1}s`;
             });
         });
+    document.addEventListener('DOMContentLoaded', async function () {
+            try {
+                const response = await fetch('/api/enseignants/info', {
+                    headers: {
+                        'Authorization': 'Bearer ' + localStorage.getItem('token')
+                    }
+                });
+
+                const data = await response.json();
+                document.getElementById('user-faculte').textContent = data.faculte || 'Inconnue';
+                document.getElementById('Iuser-faculte').textContent = data.faculte || 'Inconnue';
+            } catch (err) {
+                console.error('Erreur récupération faculté:', err);
+            }
+        });   
     </script>
 </body>
 </html>
