@@ -1,0 +1,55 @@
+# 📘 Fiche de Voeux Project – Teacher Request Management Application
+
+## Description
+
+This web application is designed specifically for **teachers** to submit and manage their course preferences for the academic year.  
+It is a multidisciplinary project developed for the **Faculty of Computer Science at USTHB University**, involving both teachers and the department head.
+
+---
+
+##  Application Overview
+
+- **Secure Authentication**
+- **Teacher Dashboard** to submit and update preferences  
+- **Department Head Dashboard** to validate, manage, and monitor requests  
+
+---
+
+##  Tools and Technologies Used
+
+### 1. Frontend  
+- **HTML / CSS / JavaScript** for page structure, styling, and interactivity  
+- User-friendly interface with cross-browser compatibility  
+
+### 2. Backend  
+- **Node.js** as the server-side JavaScript runtime  
+- **Express.js** framework for handling routes, HTTP requests, and business logic (login, submission, etc.)  
+
+### 3. Database  
+- **MySQL** relational database system to store users, roles, and preferences  
+- **Sequelize** ORM for simplified and secure interaction between Node.js and MySQL  
+- **draw.io** for designing the relational database schema  
+
+### 4. Security and Authentication  
+- **bcrypt** for password hashing to ensure user data confidentiality  
+- **JWT (JSON Web Token)** for secure token-based authentication  
+- Custom middleware to enforce role-based access control (teacher vs department head)  
+
+### 5. Development and Testing Tools  
+- **Canva** for diagrams and functional flowcharts  
+- **VS Code** as the primary code editor  
+- **Terminal / Command Prompt** for running npm, node commands, etc.  
+- **Postman** for API testing, documentation, and automation  
+
+---
+
+##  Installation and Setup
+
+1. Clone the repository:  
+```bash
+git clone https://github.com/linadelh/fiche_voeux.git
+cd fiche_voeux
+npm install
+node app.js
+**⚠️ Database import is mandatory**
+Please contact me to receive the gestion_voeux.sql file required for setup :))
