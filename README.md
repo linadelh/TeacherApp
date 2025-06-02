@@ -12,7 +12,9 @@ It is a multidisciplinary project developed for the **Faculty of Computer Scienc
 - **Secure Authentication**
 - **Teacher Dashboard** to submit and update preferences
   ![image alt](https://github.com/linadelh/fiche_voeux/blob/f202a1635c78dbae84011aabcd7a76aaaa67e4ee/espace%20enseignant.png)
-- **Department Head Dashboard** to validate, manage, and monitor requests  
+  ![image alt](https://github.com/linadelh/fiche_voeux/blob/76aa24c0306140021973214ef08120bcf51c80ef/fiche(1).png)
+- **Department Head Dashboard** to validate, manage, and monitor requests
+  ![image alt](https://github.com/linadelh/fiche_voeux/blob/76aa24c0306140021973214ef08120bcf51c80ef/chefanal.png)
 
 ---
 
