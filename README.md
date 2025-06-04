@@ -47,9 +47,8 @@ Our goal was to propose a *digital solution that simplifies and modernizes this 
 
 ---
 
-> ⚠️ **Academic Disclaimer**  
-> This project is part of a student submission for an academic assignment at USTHB.  
-> Please do not reuse, copy, or redistribute this code without explicit permission from the us thanks for understanding :) 
+> ⚠️ **Academic Disclaimer**    
+> Please do not reuse, copy, or redistribute this code without explicit permission from us thanks for understanding :) 
 
 ##  Installation and Setup
 
