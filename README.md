@@ -58,5 +58,5 @@ git clone https://github.com/linadelh/fiche_voeux.git
 cd fiche_voeux
 npm install
 node app.js
-**⚠️ Database import is mandatory**
-Please contact me to receive the gestion_voeux.sql file required for setup :))
+*⚠️ Database import is mandatory*
+ 
