@@ -1,4 +1,4 @@
-#  Fiche de Voeux Project – Teacher Request Management Application
+# Teacher Request Management Application
 
 ## Description
 
