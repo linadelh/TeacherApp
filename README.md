@@ -5,7 +5,7 @@
 This web application is a project developed as part of our academic coursework at USTHB – Faculty of Computer Science.
 It was designed in response to a real problem that teachers face every year while submitting their **course preference forms**
 
-Our goal was to propose a *digital solution that simplifies and modernizes this repetitive process* by allowing teachers to easily submit, update, and track their course preferences online.
+the main goal was to propose a *digital solution that simplifies and modernizes this repetitive process* by allowing teachers to easily submit, update, and track their course preferences online.
 ---
 
 ##  Application Overview
