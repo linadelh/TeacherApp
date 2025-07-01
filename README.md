@@ -51,9 +51,11 @@ the main goal was to propose a *digital solution that simplifies and modernizes 
 
 ##  Installation and Setup
 
-1. Clone the repository:  
 ```bash
+1. open a terminal 
+2. Clone the repository:  
 git clone https://github.com/linadelh/fiche_voeux.git
+3. write this commands 
 cd fiche_voeux
 npm install
 node app.js
