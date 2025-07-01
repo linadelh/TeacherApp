@@ -47,8 +47,7 @@ the main goal was to propose a *digital solution that simplifies and modernizes 
 
 ---
 
-> ⚠️ **Academic Disclaimer**    
-> Please do not reuse, copy, or redistribute this code without explicit permission from us thanks for understanding :) 
+
 
 ##  Installation and Setup
 
